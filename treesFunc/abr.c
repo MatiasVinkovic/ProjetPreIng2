@@ -1,37 +1,40 @@
 #include <stdio.h>
-
 #include <stdlib.h>
-
 #include <time.h>
 
-typedef struct tttree {
+typedef struct _tree {
   int v;
-  struct tttree * left;
-  struct tttree * right;
-}
-Tree;
+  struct _tree * left;
+  struct _tree * right;
+}Tree;
 
-typedef Tree * pTree;
 
-int isEmpty(pTree a) {
+int isEmpty(Tree * a) {
+  //verify if the abr is empty
   return a == NULL;
 }
 
-int existLeftChild(pTree a) {
+int existLeftChild(Tree * a) {
+  //verify if has left child
   return !isEmpty(a) && a -> left != NULL;
 }
 
-int existRightChild(pTree a) {
+int existRightChild(Tree * a) {
+  //verify if has right child
   return !isEmpty(a) && a -> right != NULL;
 }
 
 void traiter(Tree * a) {
+  //display node
   if (!isEmpty(a)) {
     printf("[%d] ", a -> v);
   }
 }
 
+// -------PARCOURS DE L'ARBRE-----------
+
 void prefix(Tree * a) {
+  //prefix display
   if (!isEmpty(a)) {
     traiter(a);
     prefix(a -> left);
@@ -40,6 +43,7 @@ void prefix(Tree * a) {
 }
 
 void postfix(Tree * a) {
+  //postfix display
   if (!isEmpty(a)) {
     postfix(a -> left);
     postfix(a -> right);
@@ -48,6 +52,7 @@ void postfix(Tree * a) {
 }
 
 void infix(Tree * a) {
+  //infix display
   if (!isEmpty(a)) {
     infix(a -> left);
     traiter(a);
@@ -55,8 +60,9 @@ void infix(Tree * a) {
   }
 }
 
-pTree createTree(int e) {
-  pTree newTree = malloc(sizeof(Tree));
+
+Tree * createTree(int e) {
+  Tree * newTree = malloc(sizeof(Tree));
   if (newTree == NULL) {
     exit(3); //problem with allocation
   }
@@ -66,12 +72,13 @@ pTree createTree(int e) {
   return newTree;
 }
 
-int recherche(pTree a, int e) {
+int recherche(Tree * a, int e) {
+  //return 1 if value is in abr (non recursive way)
   if (isEmpty(a)) {
     exit(1);
   }
   int i = 0;
-  pTree a2 = a;
+  Tree * a2 = a;
   while (a2 -> v != e && a2 != NULL) {
     if (e < a2 -> v) {
       a2 = a2 -> left;
@@ -87,7 +94,8 @@ int recherche(pTree a, int e) {
   return 0;
 }
 
-pTree recursiveInsertABR(pTree a, int e) {
+Tree * recursiveInsertABR(Tree * a, int e) {
+  //insert in an abr (recursive way)
   if (isEmpty(a)) {
     return createTree(e);
   }
@@ -100,27 +108,11 @@ pTree recursiveInsertABR(pTree a, int e) {
   return a;
 }
 
-pTree nonrecursiveInsertABR(pTree a, int e) {
-  if (isEmpty(a)) {
-    return createTree(e);
-  }
-  pTree b = a;
-  while (b -> left != NULL && b -> right != NULL) {
-    if (e > b -> v) {
-      b = b -> right;
-    }
-    if (e < b -> v) {
-      b = b -> left;
-    }
-  }
-  b = createTree(e);
-  return b;
-}
 
-pTree suppressElement(pTree a, int e);
+Tree * suppressElementAbr(Tree * a, int e);
 
-pTree suppressMax(pTree a, int * pe) {
-  pTree tmp;
+Tree * suppressMax(Tree * a, int * pe) {
+  Tree * tmp;
   if (existRightChild(a)) {
     a -> right = suppressMax(a -> right, pe);
   } else {
@@ -132,15 +124,16 @@ pTree suppressMax(pTree a, int * pe) {
   return a;
 }
 
-pTree suppressElement(pTree a, int e) {
-  pTree tmp;
+Tree * suppressElementAbr(Tree * a, int e) {
+  //suppress an element in a abr
+  Tree * tmp;
   if (isEmpty(a)) {
     return a;
   }
   if (e > a -> v) {
-    a -> right = suppressElement(a -> right, e);
+    a -> right = suppressElementAbr(a -> right, e);
   } else if (e < a -> v) {
-    a -> left = suppressElement(a -> left, e);
+    a -> left = suppressElementAbr(a -> left, e);
   } else {
     if (!existLeftChild(a)) {
       tmp = a;
@@ -158,7 +151,8 @@ pTree suppressElement(pTree a, int e) {
   return a;
 }
 
-void prefixButStopsWhenElementIsFound(pTree a, int e, int * found) {
+void prefixButStopsWhenElementIsFound(Tree * a, int e, int * found) {
+  //prefix until the e value is found
   if (!isEmpty(a) && !( * found)) {
     traiter(a);
     if (a -> v == e) {
@@ -170,7 +164,8 @@ void prefixButStopsWhenElementIsFound(pTree a, int e, int * found) {
   }
 }
 
-int checkABR_rec(pTree b, int i) {
+int checkABR_rec(Tree * b, int i) {
+  //return 1 if tree is an abr   (recursive way)
   if (isEmpty(b)) {
     printf("You sent an empty tree so technically it could be an ABR\n\n");
     return 1;
@@ -201,12 +196,13 @@ int checkABR_rec(pTree b, int i) {
   return 1;
 }
 
-int verifyABR(pTree b) {
+int verifyABR(Tree * b) {
+  //check abr non recursive way
   if (isEmpty(b)) {
     printf("You sent an empty tree so technically it could an ABR\n\n");
     return 1;
   }
-  pTree c = b;
+  Tree * c = b;
   //printf("cant enter the while\n");
   if (existLeftChild(c) || existRightChild(c)) {
     if (existLeftChild(c) && c -> v > c -> left -> v) {
@@ -221,81 +217,15 @@ int verifyABR(pTree b) {
   return 1;
 }
 
-pTree modifyTreeToABR(pTree a) {
+Tree * modifyTreeToABR(Tree * a) {
   if (isEmpty(a)) {
     return a;
   }
-  pTree abrTree;
-
+  Tree * abrTree;
 }
 
-int main(void) {
-  pTree abr = createTree(10);
+int main(void){
+	printf("Hello World");
 
-  //add nodes
-  abr = recursiveInsertABR(abr, 3);
-  abr = recursiveInsertABR(abr, 5);
-  abr = recursiveInsertABR(abr, 15);
-  abr = recursiveInsertABR(abr, 20);
-  abr = recursiveInsertABR(abr, 12);
-  abr = recursiveInsertABR(abr, 7);
-  abr = recursiveInsertABR(abr, 45);
-  abr = recursiveInsertABR(abr, 9);
-
-  // infix traversal
-  infix(abr);
-  printf("\n\n");
-
-  //postfix
-  postfix(abr);
-  printf("\n\n");
-
-  //prefix
-  prefix(abr);
-  printf("\n\n");
-
-  int h, j;
-  h = 20;
-  j = 3;
-  int a = recherche(abr, h);
-  int b = recherche(abr, j);
-
-  if (a == 0) {
-    printf("[%d] n'est pas le dedans\n\n", h);
-  }
-  if (b == 0) {
-    printf("[%d] n'est pas le dedans\n\n", j);
-  }
-
-  if (a == 1) {
-    printf("[%d] est dedans\n\n", h);
-  }
-  if (b == 1) {
-    printf("[%d] est dedans\n\n", j);
-  }
-
-  //pTree golassooooooo = abr;
-
-  int prefixVerification = 0;
-  prefixButStopsWhenElementIsFound(abr, 10, & prefixVerification);
-  prefixVerification = 0;
-  printf("\n\n");
-  prefixButStopsWhenElementIsFound(abr, 7, & prefixVerification);
-  prefixVerification = 0;
-  printf("\n\n");
-  prefixButStopsWhenElementIsFound(abr, 22, & prefixVerification);
-  printf("\n\n");
-  abr = suppressElement(abr, 15);
-
-  prefix(abr);
-  printf("\n\n");
-
-  int t = checkABR_rec(abr, 1);
-  if (t == 0) {
-    printf("not a ABR\n\n");
-  } else if (t == 1) {
-    printf("not not a ABR\n\n");
-  }
-
-  return 0;
+	return 0;
 }
