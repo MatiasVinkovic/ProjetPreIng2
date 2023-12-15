@@ -126,13 +126,79 @@ Tree *insertAVL(Tree *a, int e, int *h){
 }
 
 
+Tree* leftRotation(Tree* a){
+    if (a==NULL){
+        exit(5);
+    }
+    double eq_a, eq_p;
+    Tree* pivot;
+    pivot = a->right;
+    eq_a = a->balance;
+    eq_p = pivot->balance;
 
+    a->balance = eq_a - fmax(eq_p, 0) - 1;
+    pivot->balance = fmin(fmin(eq_a-2, eq_a+eq_p-2), eq_p-1);
 
+    a = pivot;
+    return a;
+}
 
+Tree* rightRotation(Tree* a) {
+    if (a == NULL) {
+        exit(8);
+    }
 
+    double eq_a, eq_p;
+    Tree* pivot;
+    pivot = a->left;
+    eq_a = a->balance;
+    eq_p = pivot->balance;
 
+    a->balance = eq_a - fmin(eq_p, 0) + 1;
+    pivot->balance = fmax(fmax(eq_a + 2, eq_a + eq_p + 2), eq_p + 1);
 
+    a = pivot;
+    return a;
+}
 
+Tree* doubleRightRot(Tree* a){
+    if (a == NULL) {
+        exit(8);
+    }
+    a->right = rightRotation(a->right);
+    return leftRotation(a);
+}
+
+Tree* doubleLeftRot(Tree* a){
+    if (a == NULL) {
+        exit(8);
+    }
+    a->left = leftRotation(a->left);
+    return rightRotation(a);
+}
+
+Tree* balanceAVL(Tree* a){
+    if(isEmpty(a)){
+        exit(7);
+    }
+    if(a->balance >= 2){
+        if(a->right->balance >= 0){
+            return leftRotation(a);
+        }
+        else{
+            return doubleLeftRot(a);
+        }
+    }
+    else if(a->balance <= -2){
+        if(a->left->balance <= 0){
+            return rightRotation(a);
+        }
+        else{
+            return doubleRightRot(a);
+        }
+    }
+    return a;
+}
 
 
 /*
