@@ -9,6 +9,12 @@ projet de ahmed,timothee, et matias, 3 bogoss
 tips : en faisant git status, si c'est rouge, bah c'est pas bon,mais vert oui
 
 
+6m de lignes
+300k trajets
+6k conducteurs
+angela fernandez apparement 212 trajets
+environ 20 etapes/trajet
+
 
 
 
