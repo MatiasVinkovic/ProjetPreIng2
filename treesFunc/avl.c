@@ -1,28 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
-typedef struct _tree {
-  int v;
-  struct _tree * left;
-  struct _tree * right;
-  int balance;
+typedef struct _tree{
+    struct _tree *left; 
+    struct _tree *right;
+    int v;
+    int balance;
+    int routeID;
+    float max;
+    float min;
+    float sum; //somme des distances
+    int nbr; //nombre de trajet
+    float moy;
 }Tree;
-
 
 int isEmpty(Tree * a) {
   //verify if the abr is empty
   return a == NULL;
-}
-
-int existLeftChild(Tree * a) {
-  //verify if has left child
-  return !isEmpty(a) && a -> left != NULL;
-}
-
-int existRightChild(Tree * a) {
-  //verify if has right child
-  return !isEmpty(a) && a -> right != NULL;
 }
 
 void traiter(Tree * a) {
@@ -30,6 +26,131 @@ void traiter(Tree * a) {
   if (!isEmpty(a)) {
     printf("[%d] ", a -> v);
   }
+}
+
+Tree * createAVL(int e) {
+  Tree * newTree = malloc(sizeof(Tree));
+  if (newTree == NULL) {
+    exit(3); //problem with allocation
+  }
+  //no value for the moment
+  newTree->v = e;
+  newTree -> left = NULL;
+  newTree -> right = NULL;
+  newTree->balance = 0; //cause no child
+  return newTree;
+}
+
+Tree* leftRotation(Tree* a){
+    if (a==NULL){
+        exit(5);
+    }
+    int eq_a, eq_p;
+    Tree* pivot;
+    pivot = a->right;
+    a->right = pivot->left;
+    pivot->left = a;
+    eq_a = a->balance;
+    eq_p = pivot->balance;
+
+    a->balance = eq_a - fmax(eq_p, 0) - 1;
+    pivot->balance = fmin(fmin(eq_a-2, eq_a+eq_p-2), eq_p-1);
+
+    a = pivot;
+    return a;
+}
+
+Tree* rightRotation(Tree* a) {
+    if (a == NULL) {
+        exit(84);
+    }
+
+    int eq_a, eq_p;
+    Tree* pivot;
+    pivot = a->left;
+    a->left = pivot->right;
+    pivot->right = a;
+    eq_a = a->balance;
+    eq_p = pivot->balance;
+
+    a->balance = eq_a - fmin(eq_p, 0) + 1;
+    double first_compare = fmax(eq_a + 2, eq_a + eq_p + 2);
+    pivot->balance = fmax(first_compare, eq_p + 1);
+
+    a = pivot;
+    return a;
+}
+
+Tree* doubleRightRot(Tree* a){
+    if (a == NULL) {
+        exit(81);
+    }
+    a->left = leftRotation(a->left);
+    //printf("rotation right done in doubleRight");
+    return rightRotation(a);
+}
+
+Tree* doubleLeftRot(Tree* a){
+    if (a == NULL) {
+        exit(8);
+    }
+    a->right = rightRotation(a->right);
+    //printf("rotation left done in doubleRight");
+    return leftRotation(a);
+}
+
+Tree* balanceAVL(Tree* a) {
+    if (isEmpty(a)) {
+        exit(7); // Ou une gestion d'erreur appropriée
+    }
+
+    if (a->balance >= 2) {
+        if (a->right->balance >= 0) {
+            printf("rotation left : ");
+            return leftRotation(a);
+        } else {
+            return doubleLeftRot(a);
+            printf("double rotation left : ");
+        }
+    } else if (a->balance <= -2) {
+        if (a->left->balance <= 0) {
+            printf("rotation right : ");
+            return rightRotation(a);
+        } else {
+            printf("double rotation right : ");
+            return doubleRightRot(a);
+        }
+    }
+    return a;
+} 
+
+Tree *insertAVL(Tree *a, int e, int *h){
+	if(isEmpty(a)){
+		*h = 1;
+		return createAVL(e);
+	}
+	else if(e < a->v){
+		a->left = insertAVL(a->left, e, h);
+		*h = -*h;
+	}
+	else if(e > a->v){
+		a->right = insertAVL(a->right, e, h);
+	}
+	else{
+		*h = 0; 
+		return a;
+	}
+	if(*h != 0){
+		a->balance = a->balance + *h;
+        a = balanceAVL(a);
+		if(a->balance == 0){
+			*h = 0;
+		}
+		else{
+			*h = 1;
+		}	
+	}
+	return a;
 }
 
 // -------PARCOURS DE L'ARBRE-----------
@@ -62,225 +183,46 @@ void infix(Tree * a) {
 }
 
 
-Tree * createAVL(int e) {
-  Tree * newTree = malloc(sizeof(Tree));
-  if (newTree == NULL) {
-    exit(3); //problem with allocation
-  }
-  newTree -> v = e;
-  newTree -> left = NULL;
-  newTree -> right = NULL;
-  newTree->balance = 0; //cause no child
-  return newTree;
-}
 
-int recherche(Tree * a, int e) {
-  //return 1 if value is in abr (non recursive way)
-  //S      
-  if (isEmpty(a)) {
-    exit(1);
-  }
-  int i = 0;
-  Tree * a2 = a;
-  while (a2 -> v != e && a2 != NULL) {
-    if (e < a2 -> v) {
-      a2 = a2 -> left;
-    } else {
-      a2 = a2 -> right;
-    }
-    i++;
-  }
-  printf("{%d}\n\n", i + 1);
-  if (a2 != NULL) {
-    return 1;
-  }
-  return 0;
-}
+int main() {
+    Tree *root = createAVL(13);  // Initialize an empty AVL tree
+    int height = root->balance;     // Height variable to track changes during insertions
 
-Tree *insertAVL(Tree *a, int e, int *h){
-	if(isEmpty(a)){
-		*h = 1;
-		return createAVL(e);
-	}
-	else if(e < a->v){
-		a->left = insertAVL(a->left, e, h);
-		*h = -*h;
-	}
-	else if(e > a->v){
-		a->right = insertAVL(a->right, e, h);
-	}
-	else{
-		*h = 0; 
-		return a;
-	}
-	if(*h != 0){
-		a->balance = a->balance + *h;
-		if(a->balance == 0){
-			*h = 0;
-		}
-		else{
-			*h = 1;
-		}	
-	}
-	return a;
-}
+    // Insert elements into the AVL tree and print after each insertion
+    root = insertAVL(root, 10, &height);
+    printf("After inserting 10:\n");
+    prefix(root);
+    printf("\n");
+
+    root = insertAVL(root, 5, &height);
+    printf("After inserting 5:\n");
+    prefix(root);
+    printf("\n");   
+
+    root = insertAVL(root, 15, &height);
+    printf("After inserting 15:\n");
+    prefix(root);
+    printf("\n");
+
+    root = insertAVL(root, 145, &height);
+    printf("After inserting 145:\n");
+    prefix(root);
+    printf("\n");
+
+    root = insertAVL(root, 34, &height);
+    printf("After inserting 34:\n");
+    prefix(root);
+    printf("\n");
+
+    root = insertAVL(root, 80, &height);
+    printf("After inserting 80:\n");
+    prefix(root);
+    printf("\n");
+
+    
 
 
+    // Continue with more insertions and balancing as needed
 
-
-
-
-
-
-
-
-
-/*
-Tree * recursiveInsertABR(Tree * a, int e) {
-  //insert in an abr (recursive way)
-  if (isEmpty(a)) {
-    return createTree(e);
-  }
-  if (e > a -> v) {
-    a -> right = recursiveInsertABR(a -> right, e);
-  }
-  if (e < a -> v) {
-    a -> left = recursiveInsertABR(a -> left, e);
-  }
-  return a;
-}
-
-
-Tree * suppressElementAbr(Tree * a, int e);
-
-Tree * suppressMax(Tree * a, int * pe) {
-  Tree * tmp;
-  if (existRightChild(a)) {
-    a -> right = suppressMax(a -> right, pe);
-  } else {
-    * pe = a -> v;
-    tmp = a;
-    a = a -> left;
-    free(tmp);
-  }
-  return a;
-}
-
-Tree * suppressElementAbr(Tree * a, int e) {
-  //suppress an element in a abr
-  Tree * tmp;
-  if (isEmpty(a)) {
-    return a;
-  }
-  if (e > a -> v) {
-    a -> right = suppressElementAbr(a -> right, e);
-  } else if (e < a -> v) {
-    a -> left = suppressElementAbr(a -> left, e);
-  } else {
-    if (!existLeftChild(a)) {
-      tmp = a;
-      a = a -> right;
-      free(tmp);
-    } else if (!existRightChild(a)) {
-      tmp = a;
-      a = a -> left;
-      free(tmp);
-    } else {
-      a -> left = suppressMax(a -> left, & e);
-      a -> v = e;
-    }
-  }
-  return a;
-}
-
-void prefixButStopsWhenElementIsFound(Tree * a, int e, int * found) {
-  //prefix until the e value is found
-  if (!isEmpty(a) && !( * found)) {
-    traiter(a);
-    if (a -> v == e) {
-      * found = 1; // set found to true
-    } else {
-      prefixButStopsWhenElementIsFound(a -> left, e, found);
-      prefixButStopsWhenElementIsFound(a -> right, e, found);
-    }
-  }
-}
-
-int checkABR_rec(Tree * b, int i) {
-  //return 1 if tree is an abr   (recursive way)
-  if (isEmpty(b)) {
-    printf("You sent an empty tree so technically it could be an ABR\n\n");
-    return 1;
-  }
-  if (b != NULL && i != 0) {
-
-    // process
-    // if current value is lesser than previous processed node
-
-    // left
-    if (existLeftChild(b) && b -> v > b -> left -> v) {
-      i = checkABR_rec(b -> left, i); // if left returned 0, return 0
-    }
-
-    // =>error
-    // right
-    if (existRightChild(b) && b -> v < b -> right -> v) {
-      i = checkABR_rec(b -> right, i); // if right returned 0, return 0
-    }
-    // all ok return 1
-    else if (existLeftChild(b) && b -> v < b -> left -> v || existRightChild(b) && b -> v > b -> right -> v) {
-      return 0;
-    }
-  }
-  if (i == 0) {
     return 0;
-  }
-  return 1;
-}
-
-int verifyABR(Tree * b) {
-  //check abr non recursive way
-  if (isEmpty(b)) {
-    printf("You sent an empty tree so technically it could an ABR\n\n");
-    return 1;
-  }
-  Tree * c = b;
-  //printf("cant enter the while\n");
-  if (existLeftChild(c) || existRightChild(c)) {
-    if (existLeftChild(c) && c -> v > c -> left -> v) {
-      c = c -> left;
-    } else if (existRightChild(c) && c -> v < c -> right -> v) {
-      c = c -> right;
-    }
-  } else if (c -> v < c -> left -> v || c -> v > c -> right -> v) {
-    printf("tf thats not an ABR \n\n");
-    return 0;
-  }
-  return 1;
-}
-
-Tree * modifyTreeToABR(Tree * a) {
-  if (isEmpty(a)) {
-    return a;
-  }
-  Tree * abrTree;
-}
-
-
- head -100000 data.csv | cut -d';' -f1,6
- head -300000 data.csv | cut -d';' -f1,6 | sort -d
- 
-
-
-
-
-
-*/
-
-int main(void){
-	printf("Hello World");
-	Tree *arbre = createAVL(19);
-	
-
-	return 0;
 }
