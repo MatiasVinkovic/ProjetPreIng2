@@ -3,18 +3,24 @@
 #include <time.h>
 #include <math.h>
 
+#define SIZE 6365541 //temporaire : à récupérer manuellement
+
 typedef struct _tree{
     struct _tree *left; 
     struct _tree *right;
-    int v;
+    
+
     int balance;
     int routeID;
     float max;
     float min;
     float sum; //somme des distances
-    int nbr; //nombre de trajet
+    int count; //nombre de trajet
     float moy;
+
+    float max_miness_min;
 }Tree;
+
 
 int isEmpty(Tree * a) {
   //verify if the abr is empty
@@ -24,21 +30,48 @@ int isEmpty(Tree * a) {
 void traiter(Tree * a) {
   //display node
   if (!isEmpty(a)) {
-    printf("[%d] ", a -> v);
+    printf("[%d] ", a -> routeID);
   }
 }
 
-Tree * createAVL(int e) {
-  Tree * newTree = malloc(sizeof(Tree));
-  if (newTree == NULL) {
+Tree * createAVL(int newId, float distance) { //use only if never seen routeID in avl
+  Tree * n = malloc(sizeof(Tree));
+  if (n == NULL) {
     exit(3); //problem with allocation
   }
   //no value for the moment
-  newTree->v = e;
-  newTree -> left = NULL;
-  newTree -> right = NULL;
-  newTree->balance = 0; //cause no child
-  return newTree;
+  n->routeID = newId;
+  n->max = distance;
+  n->min = distance;
+  n->max_miness_min = distance;
+  n->count = 1;
+  n->sum = distance;
+  n->moy = (n->sum)/n->count;
+  //basics parameters
+  n -> left = NULL;
+  n -> right = NULL;
+  n->balance = 0; //cause no child
+  return n;
+}
+
+Tree * createAVLSecond(int newId, float max, float min, int count, float sum, float moy, float miness_min) { //use only if never seen routeID in avl
+  Tree * n = malloc(sizeof(Tree));
+  if (n == NULL) {
+    exit(3); //problem with allocation
+  }
+  //no value for the moment
+  n->routeID = newId;
+  n->max = max;
+  n->min = min;
+  n->max_miness_min = miness_min;
+  n->count = count;
+  n->sum = sum;
+  n->moy = moy;
+  //basics parameters
+  n -> left = NULL;
+  n -> right = NULL;
+  n->balance = 0; //cause no child
+  return n;
 }
 
 Tree* leftRotation(Tree* a){
@@ -106,43 +139,57 @@ Tree* balanceAVL(Tree* a) {
 
     if (a->balance >= 2) {
         if (a->right->balance >= 0) {
-            printf("rotation left : ");
+            //printf("rotation left : ");
             return leftRotation(a);
         } else {
             return doubleLeftRot(a);
-            printf("double rotation left : ");
+            //printf("double rotation left : ");
         }
     } else if (a->balance <= -2) {
         if (a->left->balance <= 0) {
-            printf("rotation right : ");
+            //printf("rotation right : ");
             return rightRotation(a);
         } else {
-            printf("double rotation right : ");
+            //printf("double rotation right : ");
             return doubleRightRot(a);
         }
     }
     return a;
 } 
-
-Tree *insertAVL(Tree *a, int e, int *h){
+                      //e is routeID
+Tree *insertAVL(Tree *a, int routeID, int *h, float distance){ 
 	if(isEmpty(a)){
 		*h = 1;
-		return createAVL(e);
+		return createAVL(routeID, distance);
 	}
-	else if(e < a->v){
-		a->left = insertAVL(a->left, e, h);
+	else if(routeID < a->routeID){
+		a->left = insertAVL(a->left, routeID, h, distance);
 		*h = -*h;
 	}
-	else if(e > a->v){
-		a->right = insertAVL(a->right, e, h);
+	else if(routeID > a->routeID){
+		a->right = insertAVL(a->right, routeID, h, distance);
 	}
-	else{
+	else{ //already in 
 		*h = 0; 
+    //update the max/min distance
+    a->max = fmax(a->max, distance);
+    a->min = fmin(a->min, distance);
+
+    //update max-min
+    if(a->max == a->min){
+      a->max_miness_min = 0;
+    }
+    else{
+      a->max_miness_min = (a->max)- (a->min);
+    }
+    a->sum += distance;
+    a->count = a->count + 1;
+    a->moy = (a->sum)/a->count; //deduct the average distance value
 		return a;
 	}
 	if(*h != 0){
 		a->balance = a->balance + *h;
-        a = balanceAVL(a);
+    a = balanceAVL(a);
 		if(a->balance == 0){
 			*h = 0;
 		}
@@ -153,12 +200,152 @@ Tree *insertAVL(Tree *a, int e, int *h){
 	return a;
 }
 
+//FILES
+
+typedef struct _node{
+    Tree *arbre;
+    struct _node* pNext;
+}Node;
+
+Node *createNode(Tree *a){
+    Node *pNew = malloc(sizeof(Node));
+    if(pNew==NULL){exit(8);}
+    pNew->pNext = NULL;
+    pNew->arbre = a;
+    return pNew;
+}
+
+typedef struct{
+    Node *pHead;
+    Node *pTail;
+    int size;
+}Fifo;
+
+Fifo *createFifo(){
+    Fifo *pFifo = malloc(sizeof(Fifo));
+    if(pFifo==NULL){exit(5);}
+    pFifo->pHead = NULL;
+    pFifo->pTail = NULL;
+    pFifo->size = 0;
+    return pFifo;
+}
+
+void enfiler(Fifo *f, Tree *a){
+    if(isEmpty(a)){exit(5);}
+    Node*n = createNode(a);if(n==NULL){exit(88);}
+    if(f->pHead==NULL){
+        //si la file est vide
+        f->pHead=n;
+        f->pTail=n;
+        f->size+=1;
+    }
+    else{
+        f->pTail->pNext = n;
+        f->pTail = f->pTail->pNext;
+        f->size+=1;
+    }
+}
+
+void defiler(Fifo *f, Tree **b){
+    if(f==NULL){exit(9);}
+    Node *n = f->pHead;
+    if(n==NULL){exit(55);}
+    *b = n->arbre;
+    f->pHead = f->pHead->pNext;
+
+    //si la file est vide apres la suppression du noeud
+    if(f->pHead==NULL){
+        f->pTail=NULL;
+    }
+    free(n);
+    
+}
+
+void arbreToFile(Tree *a, Fifo *f){
+    if(!isEmpty(a)){
+        enfiler(f, a);
+        arbreToFile(a->right, f);
+        arbreToFile(a->left, f);
+    }
+}
+
+
+              // a = nouveau
+              //b = ancien
+Tree *insertSecondAVL(Tree *a, Tree *b, int *h){ 
+  //printf("in\n");
+	if(isEmpty(a)){
+		*h = 1;
+   
+		return createAVLSecond(b->routeID, b->max, b->min, b->count, b->sum, b->moy, b->max_miness_min);
+	}
+	else if(b->max_miness_min < a->max_miness_min){
+    
+		a->left = insertSecondAVL(a->left,b,h);
+		*h = -*h;
+	}
+	else if(b->max_miness_min > a->max_miness_min){
+    
+		a->right = insertSecondAVL(a->right,b, h);
+	}
+	else{ //already in 
+		*h = 0; 
+    
+		return a;
+	}
+	if(*h != 0){
+		a->balance = a->balance + *h;
+    a = balanceAVL(a);
+		if(a->balance == 0){
+			*h = 0;
+		}
+		else{
+			*h = 1;
+		}	
+	}
+	return a;
+}
+
+
+Tree* firstAVL(Tree * avl){
+
+  //on ouvre le fichier contenant routeID;distance
+  FILE * list_file = fopen("../test.txt","r");
+  if(list_file==NULL){
+    exit(2);//error
+  }
+  int i = 0;
+  //Temporary variabless
+  int tempRouteID;
+  float tempDistance;
+
+  //ok 
+
+  //on rentre la premiere ligne dans l'avl
+  avl = createAVL(404,404);
+  int balance = avl->balance;
+
+  
+  while(i != SIZE){
+    fscanf(list_file, "%d %f", &tempRouteID, &tempDistance);
+    avl = insertAVL(avl, tempRouteID, &balance, tempDistance);
+
+    i++;
+  }
+  fclose(list_file);
+  return avl;
+
+}
+
+
+
+
 // -------PARCOURS DE L'ARBRE-----------
 
 void prefix(Tree * a) {
   //prefix display
   if (!isEmpty(a)) {
-    traiter(a);
+    printf("route id = [%d] max/min = [%f/%f] max-min = [%f] balance = [%d] count = [%d]\n", a->routeID,a->max, a->min, a->max_miness_min, a->balance, a->count);
     prefix(a -> left);
     prefix(a -> right);
   }
@@ -182,47 +369,80 @@ void infix(Tree * a) {
   }
 }
 
+void afficheFile(Fifo f){
+  while(f.pHead != NULL){
+    printf("[%d]\n", f.pHead->arbre->routeID);
+    f.pHead = f.pHead->pNext;
+  }
+}
 
+void afficheNewFile(Fifo *f){
+  while(f->pHead != NULL){
+    printf("[%d], max : [%f]\n", f->pHead->arbre->routeID, f->pHead->arbre->min);
+    f->pHead = f->pHead->pNext;
+  }
+}
+
+Tree *fileToAvl(Fifo *f){
+  Tree *tempTree;
+  int h;
+  
+  Tree *new = createAVLSecond(0,0,0,0,0,0,0);
+  
+  while(f->pHead != NULL){
+    defiler(f, &tempTree);
+    //printf("defilement de %d\n", tempTree->routeID);
+    h = new->balance;
+    //printf("balance=%d\n", tempTree->balance);
+    new = insertSecondAVL(new, tempTree, &h);
+    //f.pHead = f.pHead->pNext;
+  }
+  
+  return new;
+}
+
+int compter(Tree * a, int *i) {
+  //prefix display
+  if (!isEmpty(a)) {
+    printf("%d\n", *i);
+    *i = *i+1;
+    compter(a -> left, i);
+    compter(a -> right, i);
+  }
+}
 
 int main() {
-    Tree *root = createAVL(13);  // Initialize an empty AVL tree
-    int height = root->balance;     // Height variable to track changes during insertions
 
-    // Insert elements into the AVL tree and print after each insertion
-    root = insertAVL(root, 10, &height);
-    printf("After inserting 10:\n");
-    prefix(root);
-    printf("\n");
-
-    root = insertAVL(root, 5, &height);
-    printf("After inserting 5:\n");
-    prefix(root);
-    printf("\n");   
-
-    root = insertAVL(root, 15, &height);
-    printf("After inserting 15:\n");
-    prefix(root);
-    printf("\n");
-
-    root = insertAVL(root, 145, &height);
-    printf("After inserting 145:\n");
-    prefix(root);
-    printf("\n");
-
-    root = insertAVL(root, 34, &height);
-    printf("After inserting 34:\n");
-    prefix(root);
-    printf("\n");
-
-    root = insertAVL(root, 80, &height);
-    printf("After inserting 80:\n");
-    prefix(root);
-    printf("\n");
-
-    
+  Tree* a;
+    //premiere ligne
+     a = firstAVL(a);
+     //premiere ligne
+  
+  //premier avl que l'on met dans la file : 
+  Fifo f = {NULL, NULL};
+  arbreToFile(a, &f); //l'ancienne arbre est dans la file
+  
+  //on se ramene a une file pointée
+  Fifo *newFifo = createFifo();
+  Tree *temp;
+  while(f.pHead != NULL){
+    defiler(&f,&temp);
+    enfiler(newFifo, temp);
+  }
+  //afficheNewFile(newFifo);
+  
+  Tree*b;
+  b = fileToAvl(newFifo);
+  
+  prefix(a);
+  
 
 
-    // Continue with more insertions and balancing as needed
 
-    return 0;
+
+
+
+  
+
+return 0;
 }
