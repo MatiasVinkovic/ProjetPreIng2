@@ -6,7 +6,7 @@
 if [ ! -d "file" ];then #directory temp
 	echo "no file directory detected : creation of it"
 	mkdir file
-	chmod u+r+w+x temp
+	chmod u+r+w+x file
 fi
 
 if [ ! -d "temp" ];then #directory temp
