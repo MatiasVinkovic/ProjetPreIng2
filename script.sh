@@ -3,9 +3,6 @@
 
 #directory existence check
 
-
-
-
 if [ ! -d "file" ];then #directory temp
 	echo "no file directory detected : creation of it"
 	mkdir file
@@ -133,33 +130,35 @@ EOF
 	#display images/d2_output.png
 		
 		;;
-
-	-s)		
-		START=$(date +%s)
-		
+	-s)	
 		cat data.csv | cut -d';' -f1,5 | tail -n +2 | sed 's/;/ /g' > file/option_s_data.txt
 		cd progC/
-		gcc avl.c -o prog -lm
+		gcc option_s.c -o prog -lm
 		./prog
 		cd ../
 		cd file/
-		tail -50 option_s_final_file.txt | tac >> option_s.data	
+		tail -50 option_s_final_file.txt | tac > option_s.data	
 		rm option_s_data.txt
 		rm option_s_final_file.txt
-		cat option_s.data																										 #put r to have same as the teacher				
-		END=$(date +%s)
-		DIFF=$(( $END - $START ))
-		echo "It took $DIFF seconds"
+		#cat option_s.data 
+		nl -s';' -w1 -nrz option_s.data > s_data.data #put the line number : CANT DO IT WITH INFIX AND COUNT WTF
+		rm option_s.data
 
-		;;
+		#il faut encore modifier le "oui.data"
+		#ainsi que gerer le fichier gnuplot et essayer de separer les scripts gnuplot comme fait
+		cd ..
+		cd gnuplot_file/
+		chmod u+r+w+x option_s_gnuplot.sh
+		./option_s_gnuplot.sh
+
+		echo "traitement S terminé"
+		cd ..
+		display images/s_output.png
+															 			
+	;;
+
+
 
 		*) echo "$arg n'existe pas";;
 	esac
 done
-
-
-
-
-
-
-
