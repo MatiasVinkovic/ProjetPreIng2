@@ -6,7 +6,7 @@
 if [ ! -d "file" ];then #directory temp
 	echo "no file directory detected : creation of it"
 	mkdir file
-	chmod u+r+w+x file
+	chmod u+r+w+x temp
 fi
 
 if [ ! -d "temp" ];then #directory temp
@@ -97,7 +97,7 @@ gnuplot << EOF
 		set style histogram rowstacked
 		set xtics rotate
 		set datafile separator ";"
-		plot for [COL=1:2] "temp/d2_data.data" using COL:xticlabel(2) lc rgb "#308c1f" title "" 
+		plot for [COL=1:1] "temp/d2_data.data" using COL:xticlabel(2) lc rgb "#308c1f" title "" 
 EOF
 	convert -rotate 90 images/d2_output.png images/d2_output.png
 	#display images/d2_output.png
@@ -132,9 +132,15 @@ EOF
 		;;
 	-s)	
 		cat data.csv | cut -d';' -f1,5 | tail -n +2 | sed 's/;/ /g' > file/option_s_data.txt
+		# we want to put the number of lines into the c programmn but with
+		# wc -l, it prints the file name, so we use a combinaison of find and cat to
+		# keep only the number of lines, we never know if a bug could happened
+		t=`find file/option_s_data.txt -type f -exec cat {} + | wc -l`
+		echo "t is $t"
+		
 		cd progC/
 		gcc option_s.c -o prog -lm
-		./prog
+		./prog $t
 		cd ../
 		cd file/
 		tail -50 option_s_final_file.txt | tac > option_s.data	
