@@ -327,8 +327,10 @@ Tree* firstAVL(Tree * avl, int size){
     int tempRouteID;
 
     // //on rentre la premiere ligne dans l'avl
-    avl = createTree("none", 0, 0);
+    fscanf(list_file, "%d %d %s %s", &tempRouteID, &tempStepID, city_a, city_b);
+    avl = createTree(city_a, tempRouteID, tempStepID);
     int balance = avl->balance;
+    avl = insertAvl(avl, &balance, tempRouteID, 0, city_b);
 
 
     for(int i = 0; i<size;i++){
@@ -347,7 +349,7 @@ Tree* firstAVL(Tree * avl, int size){
 
 void prefix(Tree * a) {
     //prefix display
-    if (!isEmpty(a)) {
+    if (a!=NULL) {
         printf("City name = [%s] Size of the list : [%d] Departure City = [%d]\n", a->city_name, a->size, a->departCityCount);
         prefix(a -> left);
         prefix(a -> right);
@@ -356,9 +358,9 @@ void prefix(Tree * a) {
 
 void infix(Tree * a) {
     //infix display
-    if (!isEmpty(a)) {
+    if (a!=NULL) {
         infix(a -> left);
-        printf("City name = [%s] Size of the list : [%d] Departure City = [%d]\n", a->city_name, a->size, a->departCityCount);
+        printf("%s;%d;%d\n", a->city_name, a->size, a->departCityCount);
         //fprintf(file_final,"%d;%.4f;%.4f;%.4f;%.4f\n",a->routeID, a->min, a->moy, a->max, a->max_miness_min);
         infix(a -> right);
     }
@@ -375,18 +377,172 @@ void postfix(Tree * a) {
 }
 
 
+typedef struct _secondnode{
+    Tree *arbre;
+    struct _secondnode* pNext;
+}SecondNode;
+
+typedef struct{
+    SecondNode *pHead;
+    SecondNode *pTail;
+    int size;
+}Fifo;
+
+SecondNode *createSecondNode(Tree *a){
+    SecondNode *pNew = malloc(sizeof(SecondNode));
+    if(pNew==NULL){exit(8);}
+    pNew->pNext = NULL;
+    pNew->arbre = a;
+    return pNew;
+}
+
+Fifo *createFifo(){
+    Fifo *pFifo = malloc(sizeof(Fifo));
+    if(pFifo==NULL){exit(5);}
+    pFifo->pHead = NULL;
+    pFifo->pTail = NULL;
+    pFifo->size = 0;
+    return pFifo;
+}
+
+
+Tree * createAVLSecond(char city_name[],int departCityCount,int sizeOfTree) { //use only if never seen routeID in avl
+    Tree * n = malloc(sizeof(Tree));
+    if (n == NULL) {
+        exit(3); //problem with allocation
+    }
+    //no value for the moment
+    strcpy(n->city_name, city_name);
+    n->departCityCount = departCityCount;
+    n->size = sizeOfTree;
+    //basics parameters
+    n -> left = NULL;
+    n -> right = NULL;
+    n->balance = 0; //cause no child
+    return n;
+}
+
+// a = nouveau
+//b = ancien
+Tree *insertSecondAVL(Tree *a, Tree *b, int *h){
+    //printf("in\n");
+    if(a==NULL){
+        *h = 1;
+        return createAVLSecond(b->city_name,b->departCityCount,b->size);
+    }
+    else if(b->size < a->size){
+        //printf("in");
+        a->left = insertSecondAVL(a->left,b,h);
+        *h = -*h;
+    }
+    else if(b->size > a->size){
+        a->right = insertSecondAVL(a->right,b, h);
+    }
+    else{ //already in
+        *h = 0;
+        //printf("b SOL is %d and a SOL is %d\n", b->size, a->size);        
+        return a;
+    }
+    if(*h != 0){
+        a->balance = a->balance + *h;
+        a = balanceAVL(a);
+        if(a->balance == 0){
+            *h = 0;
+        }
+        else{
+            *h = 1;
+        }
+    }
+    return a;
+}
+
+void enfiler(Fifo *f, Tree *a){
+    if(isEmpty(a)){exit(5);}
+    SecondNode*n = createSecondNode(a);if(n==NULL){exit(88);}
+    if(f->pHead==NULL){
+        //si la file est vide
+        f->pHead=n;
+        f->pTail=n;
+        f->size+=1;
+    }
+    else{
+        f->pTail->pNext = n;
+        f->pTail = f->pTail->pNext;
+        f->size+=1;
+    }
+}
+
+void defiler(Fifo *f, Tree **b){
+    if(f==NULL){exit(9);}
+    SecondNode *n = f->pHead;
+    if(n==NULL){exit(55);}
+    *b = n->arbre;
+    f->pHead = f->pHead->pNext;
+
+    //si la file est vide apres la suppression du noeud
+    if(f->pHead==NULL){
+        f->pTail=NULL;
+    }
+    free(n);
+
+}
+
+void arbreToFile(Tree *a, Fifo *f){
+    if(!isEmpty(a)){
+        enfiler(f, a);
+        arbreToFile(a->right, f);
+        arbreToFile(a->left, f);
+    }
+}
+
+Tree *fileToAvl(Fifo *f){
+    Tree *tempTree;
+    int h;
+
+    defiler(f, &tempTree);
+    Tree *new = createAVLSecond(tempTree->city_name,tempTree->departCityCount,tempTree->size);
+
+    while(f->pHead != NULL){
+        defiler(f, &tempTree);
+        //printf("defilement de %s %d\n", tempTree->city_name, tempTree->sizeOfList);
+        h = new->balance;
+        //printf("balance=%d\n", tempTree->balance);
+        new = insertSecondAVL(new, tempTree, &h);
+    }
+
+    return new;
+}
+
+void afficheNewFile(Fifo *f){
+    while(f->pHead != NULL){
+        printf("City name = [%s] Size of the list : [%d] Departure City = [%d]\n", f->pHead->arbre->city_name, f->pHead->arbre->size, f->pHead->arbre->departCityCount);
+        f->pHead = f->pHead->pNext;
+    }
+}
+
 int main(void){
 
-    Tree *a;//6365541
-    a = firstAVL(a, 6365541);
-    prefix(a);
+    Tree *a;
+    a = firstAVL(a,6365541);    
+    //prefix(a);
+    //premier avl que l'on met dans la file :
+    Fifo f = {NULL, NULL};
+    arbreToFile(a, &f); //l'ancienne arbre est dans la file
     
+    //on se ramene a une file pointée
+    Fifo *newFifo = createFifo();
+    Tree *temp;
+    while(f.pHead != NULL){
+        defiler(&f,&temp);
+        enfiler(newFifo, temp);
+    }
+    //afficheNewFile(newFifo);
+
+    Tree*b;
+    b = fileToAvl(newFifo);
+    infix(b);
+
+
     
-    
-   
-
-
-
-
     return 0;
 }
