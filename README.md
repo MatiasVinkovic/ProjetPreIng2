@@ -16,7 +16,7 @@ angela fernandez apparement 212 trajets
 environ 20 etapes/trajet
 
 
-
+IL FAUT ABSLUMENT FREE TOUTES LES FILES, FCLOSE LES FILES DANS LES .C
 
 
 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
