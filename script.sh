@@ -1,13 +1,12 @@
 #!/bin/bash
 
-
 #directory existence check
-
 if [ ! -d "file" ];then #directory temp
 	echo "no file directory detected : creation of it"
 	mkdir file
 	chmod u+r+w+x temp
 fi
+
 
 if [ ! -d "temp" ];then #directory temp
 	echo "no temp directory detected : creation of it"
@@ -27,17 +26,17 @@ if [ -s "temp" ];then	#if temp is not empty : rm all its content but not itself
 fi
 
 if (($# <= 1)) ; then	#check if at least 1 argument
-	echo "missing arguments (-d1;-d2...)"
+	echo "missing arguments (-d1;-d2;-l;-s;-t)"
 	exit 1
 fi
 
 if [ ! -f $1 ] ; then
-	echo "$1 n'est pas un fichier"
+	echo "$1 is not a file"
 	exit 2
 fi
 
 if [[ ! $1 == *.csv ]];then
-	echo "pas un fichier csv"
+	echo "is not a .csv file"
 	exit 9
 fi
 
@@ -50,8 +49,8 @@ do
 	--bogoss) echo "vous etes un enorme bogoss";;
 	-d1) # -d1 option 
 		START=$(date +%s)
-		#awk -F';' '!seen[$1,$6]++ { count[$6]++ } END { for (name in count) print count[name],";"name }' $1 | sort -rn | head -n10 > temp/d1_data.data
-		cut -d';' -f1,6 "$1" | awk -F';' '!arr[$1]++ {arr2[$2]++} END {for (i in arr2) printf "%s:%d\n",i,arr2[i]}' | sort -t';' -k2nr | head -n10 > temp/d1_data.data
+		awk -F';' '!seen[$1,$6]++ { count[$6]++ } END { for (name in count) print count[name],";"name }' $1 | sort -rn | head -n10 > temp/d1_data.data
+		#cut -d';' -f1,6 "$1" | awk -F';' '!arr[$1]++ {arr2[$2]++} END {for (i in arr2) printf "%s:%d\n",i,arr2[i]}' | sort -t';' -k2nr | head -n10 > temp/d1_data.data
 gnuplot << EOF
 		reset
 		set terminal pngcairo size 800,1200 enhanced font "arial,12"
@@ -161,6 +160,34 @@ EOF
 		cd ..
 		display images/s_output.png
 															 			
+	;;
+
+	-t)	
+		cat data.csv | sed 's/ /-/g' | sed 's/;/ /g' | cut -d' ' -f1-4 | tail -n +2 > file/option_t_data.txt
+		# we want to put the number of lines into the c programmn but with
+		# wc -l, it prints the file name, so we use a combinaison of find and cat to
+		# keep only the number of lines, we never know if a bug could happened
+		t=`find file/option_t_data.txt -type f -exec cat {} + | wc -l`
+		echo "t is $t"
+
+		cd progC/
+		gcc option_t.c -o prog -lm
+		./prog $t
+		cd ../
+		cd file/
+		cat t_data.data
+		rm option_t_data.txt option_t_final_file_10.txt option_t_final_file_not_10.txt
+		#cat option_s.data 
+
+		cd ..
+		cd gnuplot_file/
+		chmod u+r+w+x option_t_gnuplot.sh
+		./option_t_gnuplot.sh
+
+		echo "traitement T terminé"
+		cd ..
+		
+													 			
 	;;
 
 
