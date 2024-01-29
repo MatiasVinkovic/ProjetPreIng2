@@ -315,7 +315,7 @@ Tree* firstAVL(Tree * avl, int size){
     //on ouvre le fichier contenant routeID;distance
 
     //cat t_test.txt | sed 's/ /-/g' | sed 's/;/ /g' >oui.txt
-    FILE * list_file = fopen("../file/data.txt","r");
+    FILE * list_file = fopen("../file/option_t_data.txt","r");
     if(list_file==NULL){
         exit(2);//error
     }
@@ -356,24 +356,15 @@ void prefix(Tree * a) {
     }
 }
 
-void infix(Tree * a) {
+void infix(Tree * a, FILE *file_final) {
     //infix display
     if (a!=NULL) {
-        infix(a -> left);
-        printf("%s;%d;%d\n", a->city_name, a->size, a->departCityCount);
-        //fprintf(file_final,"%d;%.4f;%.4f;%.4f;%.4f\n",a->routeID, a->min, a->moy, a->max, a->max_miness_min);
-        infix(a -> right);
+        infix(a -> right, file_final);
+        //printf("%s;%d;%d\n", a->city_name, a->size, a->departCityCount);
+        fprintf(file_final,"%s;%d;%d\n",a->city_name, a->size, a->departCityCount);
+        infix(a -> left, file_final);
     }
     //tail -50 final_file.txt | tac
-}
-
-void postfix(Tree * a) {
-    //postfix display
-    if (!isEmpty(a)) {
-        postfix(a -> left);
-        postfix(a -> right);
-        printf("City name = [%s] Size of the list : [%d] Departure City = [%d]\n", a->city_name, a->size, a->departCityCount);
-    }
 }
 
 
@@ -501,7 +492,7 @@ Tree *fileToAvl(Fifo *f){
 
     defiler(f, &tempTree);
     Tree *new = createAVLSecond(tempTree->city_name,tempTree->departCityCount,tempTree->size);
-
+    int i = 0;
     while(f->pHead != NULL){
         defiler(f, &tempTree);
         //printf("defilement de %s %d\n", tempTree->city_name, tempTree->sizeOfList);
@@ -520,10 +511,80 @@ void afficheNewFile(Fifo *f){
     }
 }
 
-int main(void){
+
+//FINAL BINARY TREE OF RESEARCH FOR SORT
+typedef struct _abr {
+  char city[NAME_SIZE];
+  int totalRoutes;
+  int totalFirst;
+  struct _abr * l;
+  struct _abr * r;
+}Abr;
+
+Abr * createAbr(char city[], int totalRoutes, int totalFirst) {
+  Abr * newTree = malloc(sizeof(Abr));
+  if (newTree == NULL) {
+    exit(876); //problem with allocation
+  }
+  strcpy(newTree->city, city);
+  newTree->totalRoutes = totalRoutes;
+  newTree->totalFirst=totalFirst;
+  newTree -> l = NULL;
+  newTree -> r = NULL;
+  return newTree;
+}
+
+Abr * recursiveInsertABR(Abr * a, char city[], int totalFirst, int totalRoutes) {
+  //insert in an abr (recursive way)
+  if (a==NULL) {
+    return createAbr(city, totalFirst, totalRoutes);
+  }
+  if (strcmp(city, a->city) > 0) {
+    a -> r = recursiveInsertABR(a -> r, city, totalFirst, totalRoutes);
+  }
+  else if (strcmp(city, a->city) < 0) {
+    a -> l = recursiveInsertABR(a -> l, city, totalFirst, totalRoutes);
+  }
+  return a;
+}
+
+Abr * constructionFinalAbr(Abr*a){
+    FILE * list_file = fopen("../file/option_t_final_file_10.txt","r");
+    if(list_file==NULL){
+        exit(2);//error
+    }
+    //Temporary variabless
+    char city[NAME_SIZE];
+    int tmpTotalRoutes;
+    int tmpTotalFirst;
+
+    // //on rentre la premiere ligne dans l'avl
+    fscanf(list_file, "%s %d %d", city, &tmpTotalRoutes, &tmpTotalFirst);
+    a = recursiveInsertABR(a, city, tmpTotalRoutes, tmpTotalFirst   );
+    
+     for(int i = 0; i<10;i++){
+        fscanf(list_file, "%s %d %d", city, &tmpTotalRoutes, &tmpTotalFirst);
+        a = recursiveInsertABR(a, city, tmpTotalRoutes, tmpTotalFirst);
+    }
+    fclose(list_file);
+    return a;
+}
+
+void infixAbr(Abr * a, FILE *file) {
+    //infix display
+    if (a!=NULL) {
+        infixAbr(a->l, file);
+        fprintf(file, "%s;%d;%d\n", a->city,a->totalRoutes,a->totalFirst);
+        infixAbr(a->r,file);
+    }
+}
+
+int main(int argc, char **argv){
 
     Tree *a;
-    a = firstAVL(a,6365541);    
+    int sizeOfFile = atoi(argv[1]);
+                    //size of File
+    a = firstAVL(a,sizeOfFile);    
     //prefix(a);
     //premier avl que l'on met dans la file :
     Fifo f = {NULL, NULL};
@@ -540,9 +601,25 @@ int main(void){
 
     Tree*b;
     b = fileToAvl(newFifo);
-    infix(b);
 
+    FILE * file = fopen("../file/option_t_final_file_not_10.txt", "a");
+    if(file==NULL){exit(999);}
 
-    
+    infix(b, file);
+    system("head -n10 ../file/option_t_final_file_not_10.txt | sed 's/;/ /g' > ../file/option_t_final_file_10.txt");
+
+    FILE * file_sorted_abr = fopen("../file/option_t_final_file_10.txt", "r");
+    if(file_sorted_abr==NULL){exit(999);}
+
+    Abr *abr;
+    abr = constructionFinalAbr(abr);
+    FILE *final_file = fopen("../file/t_data.data", "a");
+    if(final_file==NULL){exit(567);}
+    infixAbr(abr,final_file);
+
+    fclose(file);
+    fclose(file_sorted_abr);
+    fclose(final_file);
+    free(newFifo);
     return 0;
 }
