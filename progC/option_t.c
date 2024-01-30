@@ -533,21 +533,21 @@ Abr * createAbr(char city[], int totalRoutes, int totalFirst) {
   return newTree;
 }
 
-Abr * recursiveInsertABR(Abr * a, char city[], int totalFirst, int totalRoutes) {
+Abr * recursiveInsertABR(Abr * a, char city_name[], int totalFirst, int totalRoutes) {
   //insert in an abr (recursive way)
   if (a==NULL) {
-    return createAbr(city, totalFirst, totalRoutes);
+    return createAbr(city_name, totalFirst, totalRoutes);
   }
-  if (strcmp(city, a->city) > 0) {
-    a -> r = recursiveInsertABR(a -> r, city, totalFirst, totalRoutes);
+  if (strcmp(city_name, a->city) > 0) {
+    a -> r = recursiveInsertABR(a -> r, city_name, totalFirst, totalRoutes);
   }
-  else if (strcmp(city, a->city) < 0) {
-    a -> l = recursiveInsertABR(a -> l, city, totalFirst, totalRoutes);
+  if (strcmp(city_name, a->city) < 0) {
+    a -> l = recursiveInsertABR(a -> l, city_name, totalFirst, totalRoutes);
   }
   return a;
 }
 
-Abr * constructionFinalAbr(Abr*a){
+Abr * constructionFinalAbr(Abr * a){
     FILE * list_file = fopen("../file/option_t_final_file_10.txt","r");
     if(list_file==NULL){
         exit(2);//error
@@ -561,11 +561,13 @@ Abr * constructionFinalAbr(Abr*a){
     fscanf(list_file, "%s %d %d", city, &tmpTotalRoutes, &tmpTotalFirst);
     a = recursiveInsertABR(a, city, tmpTotalRoutes, tmpTotalFirst   );
     
-     for(int i = 0; i<10;i++){
-        fscanf(list_file, "%s %d %d", city, &tmpTotalRoutes, &tmpTotalFirst);
+    int k = 0;
+    while(fscanf(list_file, "%s %d %d", city, &tmpTotalRoutes, &tmpTotalFirst) == 3 && k!=10){
         a = recursiveInsertABR(a, city, tmpTotalRoutes, tmpTotalFirst);
+        k++;
     }
     fclose(list_file);
+    
     return a;
 }
 
@@ -604,12 +606,15 @@ int main(void){
 
     infix(b, file);
     system("head -n10 ../file/option_t_final_file_not_10.txt | sed 's/;/ /g' > ../file/option_t_final_file_10.txt");
+    //ok
 
     FILE * file_sorted_abr = fopen("../file/option_t_final_file_10.txt", "r");
     if(file_sorted_abr==NULL){exit(999);}
 
-    Abr *abr;
+
+    Abr *abr=NULL;
     abr = constructionFinalAbr(abr);
+    
     FILE *final_file = fopen("../file/t_data.data", "a");
     if(final_file==NULL){exit(567);}
     infixAbr(abr,final_file);
@@ -618,5 +623,6 @@ int main(void){
     fclose(file_sorted_abr);
     fclose(final_file);
     free(newFifo);
+    
     return 0;
 }
