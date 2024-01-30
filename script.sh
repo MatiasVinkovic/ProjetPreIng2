@@ -158,7 +158,7 @@ EOF
 
 		echo "traitement S terminé"
 		cd ..
-		#display images/s_output.png
+		display images/s_output.png
 															 			
 	;;
 
@@ -167,12 +167,10 @@ EOF
 		# we want to put the number of lines into the c programmn but with
 		# wc -l, it prints the file name, so we use a combinaison of find and cat to
 		# keep only the number of lines, we never know if a bug could happened
-		t=`find file/option_t_data.txt -type f -exec cat {} + | wc -l`
-		echo "t is $t"
-
+		
 		cd progC/
 		gcc option_t.c -o prog -lm
-		./prog $t
+		./prog
 		cd ../
 		cd file/
 		cat t_data.data
