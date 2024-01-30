@@ -158,7 +158,7 @@ EOF
 
 		echo "traitement S terminé"
 		cd ..
-		display images/s_output.png
+		#display images/s_output.png
 															 			
 	;;
 
