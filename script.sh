@@ -5,8 +5,7 @@ if [ ! -d "file" ];then #directory temp
 	echo "no file directory detected : creation of it"
 	mkdir file
 	chmod u+r+w+x temp
-fi
-
+fi	
 
 if [ ! -d "temp" ];then #directory temp
 	echo "no temp directory detected : creation of it"
@@ -18,12 +17,24 @@ if [ ! -d "images" ];then #directory images
 	echo "no images directory detected : creation of it"
 	mkdir images
 	chmod u+r+w+x images
+	
 fi
 
 if [ -s "temp" ];then	#if temp is not empty : rm all its content but not itself
 	#echo "temp file exists : rm its content"
 	rm -r -f -d temp/*
 fi
+
+if [ -s "file" ];then	#if file is not empty : rm all its content but not itself
+	#echo "temp file exists : rm its content"
+	rm -r -f -d file/*
+fi
+
+if [ -s "images" ];then	#if file is not empty : rm all its content but not itself
+	#echo "temp file exists : rm its content"
+	rm -r -f -d images/*
+fi
+
 
 if (($# <= 1)) ; then	#check if at least 1 argument
 	echo "missing arguments (-d1;-d2;-l;-s;-t)"
@@ -131,11 +142,8 @@ EOF
 		;;
 	-s)	
 		cat data.csv | cut -d';' -f1,5 | tail -n +2 | sed 's/;/ /g' > file/option_s_data.txt
-		# we want to put the number of lines into the c programmn but with
-		# wc -l, it prints the file name, so we use a combinaison of find and cat to
-		# keep only the number of lines, we never know if a bug could happened
 		
-		
+		echo "traitement S en cours ..."
 		cd progC/
 		gcc option_s.c -o prog -lm
 		./prog 
@@ -163,26 +171,28 @@ EOF
 
 	-t)	
 		cat data.csv | sed 's/ /-/g' | sed 's/;/ /g' | cut -d' ' -f1-4 | tail -n +2 > file/option_t_data.txt
-		# we want to put the number of lines into the c programmn but with
-		# wc -l, it prints the file name, so we use a combinaison of find and cat to
-		# keep only the number of lines, we never know if a bug could happened
 		
-		cd progC/
-		gcc option_t.c -o prog -lm
+		echo "T treatment launching ..."
+		cd progC/option_t/
+		echo "MakeFile Initialisation in process..."
+		make
+		echo "Make file succesfully finished"
 		./prog
-		cd ../
+		cd ../../
 		cd file/
-		cat t_data.data
-		#rm option_t_data.txt option_t_final_file_10.txt option_t_final_file_not_10.txt
+		#cat t_data.data
+		rm option_t_data.txt option_t_final_file_10.txt option_t_final_file_not_10.txt
 		#cat option_s.data 
-
 		cd ..
 		cd gnuplot_file/
 		chmod u+r+w+x option_t_gnuplot.sh
 		./option_t_gnuplot.sh
 
-		echo "traitement T terminé"
+		echo "T is over"
 		cd ..
+		cd progC/option_t/
+		make clean
+		cd ../../
 		
 													 			
 	;;
