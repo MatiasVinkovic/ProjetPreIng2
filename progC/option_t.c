@@ -606,6 +606,16 @@ int main(int argc, char **argv){
     if(file==NULL){exit(999);}
 
     infix(b, file);
+
+
+    //  so in "option_t_final_not_10.txt", we got all the values sorted by nombres of routes
+    //  with head, i'm just putting the 10 first values in an other file,
+    // then, because we only have 10 datas, i'm using an abr,(more simple and with the same speed of 
+    // treatment with 10 datas), where i'll just insert the datas sorted by alphabetic order, and then do
+    // an infix display
+
+    // getting all the values, get the 10 first and putting in an other file
+    // i could do it in two differents C programms, and do the commands by the shell, but more simple do to that in 1 line
     system("head -n10 ../file/option_t_final_file_not_10.txt | sed 's/;/ /g' > ../file/option_t_final_file_10.txt");
 
     FILE * file_sorted_abr = fopen("../file/option_t_final_file_10.txt", "r");
@@ -615,7 +625,7 @@ int main(int argc, char **argv){
     abr = constructionFinalAbr(abr);
     FILE *final_file = fopen("../file/t_data.data", "a");
     if(final_file==NULL){exit(567);}
-    infixAbr(abr,final_file);
+    infixAbr(abr, final_file);
 
     fclose(file);
     fclose(file_sorted_abr);
