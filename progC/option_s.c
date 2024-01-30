@@ -307,14 +307,14 @@ Tree *insertSecondAVL(Tree *a, Tree *b, int *h){
 }
 
 
-Tree* firstAVL(Tree * avl, int size){
+Tree* firstAVL(Tree * avl){
 
     //on ouvre le fichier contenant routeID;distance
     FILE * list_file = fopen("../file/option_s_data.txt","r");
     if(list_file==NULL){
         exit(2);//error
     }
-    int i = 0;
+
     //Temporary variabless
     int tempRouteID;
     float tempDistance;
@@ -326,11 +326,8 @@ Tree* firstAVL(Tree * avl, int size){
     int balance = avl->balance;
 
 
-    while(i != size){
-        fscanf(list_file, "%d %f", &tempRouteID, &tempDistance);
+    while(fscanf(list_file, "%d %f", &tempRouteID, &tempDistance) == 2){
         avl = insertAVL(avl, tempRouteID, &balance, tempDistance);
-
-        i++;
     }
     fclose(list_file);
     return avl;
@@ -421,12 +418,10 @@ void freeMemory(Tree* t){
     }
 }
 
-int main(int argc, char **argv) {
+int main(void) {
 
     Tree* a;
-    //premiere ligne
-    int size = atoi(argv[1]);
-    a = firstAVL(a, size);
+    a = firstAVL(a);
     //premiere ligne
 
     //premier avl que l'on met dans la file :
