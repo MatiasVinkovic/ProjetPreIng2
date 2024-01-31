@@ -143,11 +143,13 @@ EOF
 	-s)	
 		cat data.csv | cut -d';' -f1,5 | tail -n +2 | sed 's/;/ /g' > file/option_s_data.txt
 		
-		echo "traitement S en cours ..."
-		cd progC/
-		gcc option_s.c -o prog -lm
-		./prog 
-		cd ../
+		echo "T treatment launching ..."
+		cd progC/option_s/
+		echo "MakeFile Initialisation in process..."
+		make
+		echo "MakeFile succesfully finished"
+		./prog
+		cd ../../
 		cd file/
 		tail -50 option_s_final_file.txt | tac > option_s.data	
 		rm option_s_data.txt
@@ -163,9 +165,11 @@ EOF
 		chmod u+r+w+x option_s_gnuplot.sh
 		./option_s_gnuplot.sh
 
-		echo "traitement S terminé"
+		echo "S is over"
 		cd ..
-		display images/s_output.png
+		cd progC/option_s/
+		make clean
+		cd ../../
 															 			
 	;;
 
