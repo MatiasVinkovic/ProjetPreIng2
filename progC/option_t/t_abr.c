@@ -70,3 +70,11 @@ void infixAbr(Abr * a, FILE *file) {
         infixAbr(a->r,file);
     }
 }
+
+void freeMemoryAbr(Abr* t){
+  if(t!=NULL){
+    freeMemoryAbr(t->l);
+    freeMemoryAbr(t->r);
+    free(t);
+    }
+}
