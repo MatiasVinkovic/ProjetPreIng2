@@ -57,7 +57,7 @@ int main(void){
     free(newFifo);
 
     freeMemoryTree(b);
-    freeMemoryTree(temp);
+    
     freeMemoryTree(a);
     freeMemoryAbr(abr);
     
