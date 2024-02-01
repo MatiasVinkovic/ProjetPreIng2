@@ -42,7 +42,7 @@ void prefix(Tree * a);
 void infix(Tree * a, FILE *file_final);
 int isEmpty(Tree * a);
 void freeMemoryAvlin(Avl_in* t);
-void freeMemoryAbr(Abr* t);
+
 void freeMemoryTree(Tree* t);
 //t_avl_in.c
 Avl_in * createAvlIn(int route_ID);
@@ -85,6 +85,7 @@ Abr * createAbr(char city[], int totalRoutes, int totalFirst);
 Abr * recursiveInsertABR(Abr * a, char city_name[], int totalFirst, int totalRoutes);
 Abr * constructionFinalAbr(Abr * a);
 void infixAbr(Abr * a, FILE *file);
+void freeMemoryAbr(Abr* t);
 
 
 #endif
