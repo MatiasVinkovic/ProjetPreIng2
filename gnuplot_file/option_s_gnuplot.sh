@@ -12,7 +12,8 @@ gnuplot << EOF
 	set ytics 100
 	set xtics rotate by 45 right
 	set title "Graphique Min-Max-Moyenne"
-	set yrange [0:1000]
+	set autoscale y
+	set yrange [0:*]
 	set datafile separator ';'
 	plot 'file/s_data.data' using 0:3:5:xticlabels(2) with filledcurves linecolor 4 lt 1 title 'Distance Max(Km))',\
 			''using 0:4 with lines linecolor 0 title 'Distance average (km)'
