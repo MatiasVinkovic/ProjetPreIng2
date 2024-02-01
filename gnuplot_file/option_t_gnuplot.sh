@@ -15,6 +15,8 @@ gnuplot << EOF
 	set xlabel "Towns"
 	set ylabel "Nombre routes"
 	set xtics rotate by -45
+	set autoscale y
+	set yrange [0:*]
 	set datafile separator ";"
 	plot 'file/t_data.data' using 2:xtic(1) lc rgb "#36b83b" title "Total routes", '' using 3 lc rgb "#207523" title "First Town"
 EOF
