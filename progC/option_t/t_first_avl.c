@@ -219,4 +219,12 @@ void infix(Tree * a, FILE *file_final) {
     //tail -50 final_file.txt | tac
 }
 
+void freeMemoryTree(Tree* t){
+  if(t!=NULL){
+    freeMemoryTree(t->left);
+    freeMemoryTree(t->right);
+    free(t);
+    }
+}
+
 
