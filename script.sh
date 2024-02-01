@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Hello mister Grignon, welcome in"
-cat draw.txt
+head -n17 draw.txt
 #directory existence check
 if [ ! -d "file" ];then #directory temp
 	echo "no file directory detected : creation of it"
@@ -64,12 +64,24 @@ dollar_at=$@ #all the args of the line
 
 for arg in ${dollar_at#*" "}
 do
+	case $arg in
+	-h) 
+	tail -n8 draw.txt
+	cat help.txt
+	exit 5
+	;;
+	--troll) cat dontOpen.txt ;;	
+	esac
+done
+
+for arg in ${dollar_at#*" "}
+do
 	case $arg in 
-	--help) echo "timo est bogoss tout autant que ahmed, ainsi que matias";;
-	--bogoss) echo "vous etes un enorme bogoss";;
+	--bogoss) echo "vous êtes un énorme bogoss, aucun doute sur ça";;
 	-d1) # -d1 option 
 		START=$(date +%s)
 		awk -F';' '!seen[$1,$6]++ { count[$6]++ } END { for (name in count) print count[name],";"name }' $1 | sort -rn | head -n10 > temp/d1_data.data
+		#cut -d';' -f1,6 "$1" | awk -F';' '!arr[$1]++ {arr2[$2]++} END {for (i in arr2) printf "%s:%d\n",i,arr2[i]}' | sort -t';' -k2nr | head -n10 > temp/d1_data.data
 gnuplot << EOF
 		reset
 		set terminal pngcairo size 800,1200 enhanced font "arial,12"
@@ -238,3 +250,8 @@ EOF
 		*) echo -e "${RED}$arg n'existe pas${NC}";;
 	esac
 done
+
+if [ "$help_detected" = true ]; then
+    cat help.txt
+    exit 0
+fi
