@@ -1,0 +1,13 @@
+“option -d1”: After running this function, you will get a graph with the drivers with the most trips. 
+
+“option -d2”: After running this function, you will get a graph with the drivers with the most traveled distances. 
+
+“option -l”: After running this function, you will get a graph that displays the 10 longest journeys. 
+
+“option -t”: After executing this function, you will obtain a graph displaying the 10 most crossed cities. “option -s”: After executing this function, you will obtain a graph displaying the minimum, maximum and average distances of the stages, for each journey.
+
+You are probably wondering “what do I need to enter into the terminal to get these results?”. Here is the command to write in your terminal to launch the program (don't forget to place yourself in the folder that contains our files using the cd command):
+
+bash script.sh data.csv -d1 -d2 -l -s -t (WARNING: this command only works for a .csv file)
+
+P.S.: You have the freedom to execute orders individually according to your needs. To do this, use the following syntax: "bash script.sh data.csv [...]" specifying the desired options.
