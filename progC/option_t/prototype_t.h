@@ -41,7 +41,9 @@ Tree* firstAVL(Tree * avl);
 void prefix(Tree * a);
 void infix(Tree * a, FILE *file_final);
 int isEmpty(Tree * a);
-
+void freeMemoryAvlin(Avl_in* t);
+void freeMemoryAbr(Abr* t);
+void freeMemoryTree(Tree* t);
 //t_avl_in.c
 Avl_in * createAvlIn(int route_ID);
 Avl_in* leftRotation2(Avl_in* a);
