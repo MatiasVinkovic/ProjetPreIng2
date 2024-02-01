@@ -152,8 +152,8 @@ Avl_in *insertAvlIn(Avl_in *a,int *h, int route_ID, int *v){
 
 void freeMemoryAvlin(Avl_in* t){
   if(t!=NULL){
-    freeMemoryTreeAvlin(t->fg);
-    freeMemoryTreeAvlin(t->fd);
+    freeMemoryAvlin(t->fg);
+    freeMemoryAvlin(t->fd);
     free(t);
     }
 }
