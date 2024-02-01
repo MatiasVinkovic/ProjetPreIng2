@@ -1,10 +1,12 @@
 #!/bin/bash
 
+echo "Hello mister Grignon, welcome in"
+cat draw.txt
 #directory existence check
 if [ ! -d "file" ];then #directory temp
 	echo "no file directory detected : creation of it"
 	mkdir file
-	chmod u+r+w+x temp
+	chmod u+r+w+x file
 fi	
 
 if [ ! -d "temp" ];then #directory temp
@@ -47,7 +49,7 @@ if [ ! -f $1 ] ; then
 fi
 
 if [[ ! $1 == *.csv ]];then
-	echo "is not a .csv file"
+	echo "$1 is not a .csv file"
 	exit 9
 fi
 
@@ -88,7 +90,7 @@ gnuplot << EOF
 
 		set ytics rotate
 		set datafile separator ";"
-		plot for [COL=1:2] "temp/d1_data.data" using COL:xticlabel(2) lc rgb "blue"
+		plot for [COL=1:1] "temp/d1_data.data" using COL:xticlabel(2) lc rgb "blue"
 EOF
 	END=$(date +%s)
 	DIFF=$(( $END - $START ))
@@ -119,7 +121,7 @@ gnuplot << EOF
 
 		set autoscale y
 		set yrange [0:*]
-		
+
 		set datafile separator ";"
 		plot for [COL=1:1] "temp/d2_data.data" using COL:xticlabel(2) lc rgb "#308c1f" title "" 
 EOF
@@ -127,7 +129,7 @@ EOF
 	#display images/d2_output.png
 		END=$(date +%s)
 		DIFF=$(( $END - $START ))
-		echo "It took $DIFF seconds"
+		echo -e "${YELLOW}It took $DIFF seconds${NC}"
 		;;
 
 	-l)		
