@@ -55,6 +55,11 @@ int main(void){
     fclose(file_sorted_abr);
     fclose(final_file);
     free(newFifo);
+
+    freeMemoryTree(b);
+    freeMemoryTree(temp);
+    freeMemoryTree(a);
+    freeMemoryAbr(abr);
     
     return 0;
 }
