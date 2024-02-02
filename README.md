@@ -9,7 +9,7 @@ Ce projet vous permettra de traiter le fichier data.csv d'une manière que vous 
 
 Vous aurez besoin de télécharger les packages suivant : 
             - imagemagick (sudo apt install imagemagick)
-            
+            - gnuplot (sudo apt install gnuplot)            
 
 voici les fonctionnalités de chaque fonction :
 
@@ -30,3 +30,14 @@ Une fois la commande exécutée, un dossier nommé "images" sera automatiquement
 Nous vous souhaitons un bon moment avec notre projet et nous vous remercions d'avoir pris le temps de lire ceci.
 
 XOXO
+
+
+Voici les temps observées sur le pc de l'école, salle 309 cauchy : 
+d1 -> 6 secondes
+d2 -> 3 secondes
+l -> 7 secondes
+s -> 11 secondes
+t -> 27 secondes
+(cf dossier demo)
+
+XOXO n°2
