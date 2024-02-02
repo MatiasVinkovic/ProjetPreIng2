@@ -7,7 +7,8 @@ gnuplot << EOF
 	reset
 	set terminal pngcairo size 1200,800 enhanced font "arial,12"
 	set output "images/s_output.png"
-	set x2label "Option -l : Distance = f(Route)" 
+	set x2label "Option -s : Distance = f(Route)" 
+ 	set xlabel "RouteID"
 	set ylabel "Distance (Km)" rotate by 90
 	set ytics 100
 	set xtics rotate by 45 right
