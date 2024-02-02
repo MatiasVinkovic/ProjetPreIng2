@@ -33,8 +33,8 @@ XOXO
 
 
 Voici les temps observées sur le pc de l'école, salle 309 cauchy : 
-d1 -> 6 secondes
-d2 -> 3 secondes
+d1 -> 6 secondes (parfois 8 lors du premier lancement)
+d2 -> 3 secondes 
 l -> 7 secondes
 s -> 11 secondes
 t -> 27 secondes
