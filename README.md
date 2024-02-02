@@ -7,6 +7,10 @@ Bienvenue dans le projet de Ahmed, Timothée, et Matias, 3 bogoss.
 
 Ce projet vous permettra de traiter le fichier data.csv d'une manière que vous n'avez jamais vue auparavant. Nous avons 5 options principales parmi lesquelles vous pouvez choisir : option -d1, -d2, -l, -t et -s.
 
+Vous aurez besoin de télécharger les packages suivant : 
+            - imagemagick (sudo apt install imagemagick)
+            
+
 voici les fonctionnalités de chaque fonction :
 
   “option -d1” : Après l’exécution de cette fonction, vous obtiendrez un graphe avec les conducteurs avec le plus de trajets.
@@ -15,7 +19,7 @@ voici les fonctionnalités de chaque fonction :
   “option -t” : Après l’exécution de cette fonction, vous obtiendrez un graphe affichant les 10 villes les plus traversées.
   “option -s” : Après l’exécution de cette fonction, vous obtiendrez un graphe affichant les distances minimales, maximales et moyennes des étapes, et ce, pour chaque trajet. 
 
-Vous vous demandez probablement “que doit-je entrer sur le terminal pour obtenir ces résultats?”. Voici la commande à écrire dans votre terminal pour lancer le programme (ne pas oublier bien se placer dans le dossier qui contient nos fichier en utilisant la commande cd) : 
+Vous vous demandez probablement “que doit-je entrer sur le terminal pour obtenir ces résultats?”. Voici la commande à écrire dans votre terminal pour lancer le programme (ne pas oublier bien se placer dans le dossier qui contient le fichier script.sh en utilisant la commande cd etc...) : 
 
 bash script.sh data.csv -d1 -d2 -l -s -t   (WARNING : cette commande ne marche que pour un fichier .csv)
 
